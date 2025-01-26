@@ -1,0 +1,406 @@
+<html>
+
+<head>
+
+<style>
+
+table {
+      border-collapse: collapse;
+      }
+
+#tab_board td {
+    width: 75;
+    height: 75;
+    border: 5px solid #dddddd;
+    font-size: 200%;
+    text-align: center;
+    	
+    
+}
+
+#tab_punti td {
+    width: 75;
+    height: 35;
+    border: 5px solid #c3e6e5;
+    
+}
+
+</style>
+
+
+<script type="text/javascript">
+
+var riga = 0;
+var colonna = 0;
+var lato = 8;
+var primo_click=true
+var id_to_move = 0
+var collision = 0
+var player = 1
+var player1c = "green"
+var player2c = "orange"
+
+var perm = new Array(lato);
+
+var col_select = new Array(lato)
+for (var i=0; i<lato; i++) col_select[i] = 0 
+
+var board = new Array(lato);
+board[0] = Array(1,0,0,0,0,0,0,0);
+board[1] = Array(0,0,0,0,0,0,0,0);
+board[2] = Array(0,0,0,0,0,0,0,0);
+board[3] = Array(0,0,0,0,0,0,0,0);
+board[4] = Array(0,0,0,0,0,0,0,0);
+board[5] = Array(0,0,0,0,0,0,0,0);
+board[6] = Array(0,0,0,0,0,0,0,0);
+board[7] = Array(0,0,0,0,0,0,0,0);
+
+var to_delete = new Array(lato);
+to_delete[0] = Array(0,0,0,0,0,0,0,0);
+to_delete[1] = Array(0,0,0,0,0,0,0,0);
+to_delete[2] = Array(0,0,0,0,0,0,0,0);
+to_delete[3] = Array(0,0,0,0,0,0,0,0);
+to_delete[4] = Array(0,0,0,0,0,0,0,0);
+to_delete[5] = Array(0,0,0,0,0,0,0,0);
+to_delete[6] = Array(0,0,0,0,0,0,0,0);
+to_delete[7] = Array(0,0,0,0,0,0,0,0);
+
+function  clicca(element) {
+
+var val=0
+var i = 0
+var newval=""
+	
+ 	riga = Math.floor((element.id-1)/lato);
+	colonna = (element.id-1) % lato;
+	//alert("riga "+riga+" colonna "+colonna);
+		
+
+	for (i=colonna-1; i+1>0; i--)
+		{
+		//alert(i)
+		board[riga][i+1]=board[riga][i]		
+		}
+	board[riga][0]=0
+	//alert(board[riga])        
+	
+	for (colonna=0; colonna<lato; colonna++)
+		{
+		if (board[riga][colonna]==0) 
+			newval="" 
+		else
+			newval=board[riga][colonna]
+
+		document.getElementById(id_matrice(riga,colonna))
+                        .innerHTML = newval
+		}
+	
+	
+	
+	to_delete[0] = Array(0,0,0,0,0,0,0,0);
+	to_delete[1] = Array(0,0,0,0,0,0,0,0);
+	to_delete[2] = Array(0,0,0,0,0,0,0,0);
+	to_delete[3] = Array(0,0,0,0,0,0,0,0);
+	to_delete[4] = Array(0,0,0,0,0,0,0,0);
+	to_delete[5] = Array(0,0,0,0,0,0,0,0);
+	to_delete[6] = Array(0,0,0,0,0,0,0,0);
+	to_delete[7] = Array(0,0,0,0,0,0,0,0);
+
+	show_ripetition()
+
+	//alert(to_delete)
+
+	setTimeout(delete_ripetition, 6000);
+
+	
+
+	return;
+	
+}
+
+
+
+
+
+function delete_ripetition()
+
+
+	{
+
+	no_yellow()
+
+	var riga,colonna = 0
+	var c=0
+
+	for (riga = 0; riga < lato; riga++)
+		for (colonna = 0; colonna < lato; colonna++)
+			if (to_delete[riga][colonna]==1)
+				{
+				for (i=colonna-1; i+1>0; i--)
+					{
+					//alert(i)
+					board[riga][i+1]=board[riga][i]		
+					}
+				board[riga][0]=0
+				//alert(board[riga])        
+	
+				for (c=0; c<lato; c++)
+					{
+					if (board[riga][c]==0) 
+						newval="" 
+					else
+						newval=board[riga][c]
+
+					document.getElementById(id_matrice(riga,c))
+                        		.innerHTML = newval
+					}
+				to_delete[riga][colonna]=0
+
+				}	
+
+	}
+
+
+
+function no_yellow()
+	{
+
+	var r,c = 0
+
+	for (r = 0; r < lato; r++)
+		for (c = 0; c < lato; c++)
+			document.getElementById(id_matrice(r,c)).style.backgroundColor = "white"
+
+	
+
+	}
+
+
+
+function show_ripetition()
+
+
+	{
+
+	var r = riga
+
+	for (riga = 0; ((riga < lato) && (riga<r)); riga++)
+		for (colonna = 0; colonna < lato; colonna++)
+			if ((board[riga][colonna]==board[riga+1][colonna]) &&
+				(board[riga][colonna]!=0))
+				{	
+				yellow(riga,colonna)
+				}
+
+	}
+
+function yellow(r,c)
+	{
+	document.getElementById(id_matrice(r,c)).style.backgroundColor = "yellow"
+
+	to_delete[r][c]=1
+
+	document.getElementById(id_matrice(r+1,c)).style.backgroundColor = "yellow"
+
+	to_delete[r+1][c]=1
+	}
+
+
+
+function search_and_highlight(riga,val) {
+
+	//alert(collision)
+ 	for (var i=0; i<lato; i++)
+	    {
+	    //alert("riga "+riga+" col "+i)
+	    if ((document.getElementById(id_matrice(riga,i)).innerHTML==val) && (collision!=1))
+		{
+		//alert(col_select[i])
+		if (col_select[i] == 0)
+	        	{
+			if (player == 1)
+       	         	 document.getElementById(id_matrice(riga,i)).style.backgroundColor = player1c
+			else
+       	         	   document.getElementById(id_matrice(riga,i)).style.backgroundColor = player2c
+			
+			col_select[i]=1
+	        	}
+		else collision = 1	    
+		}
+            }
+}
+
+
+
+function id_matrice(riga,colonna) {
+	return String((riga * lato) + colonna + 1);
+
+}
+
+function permutation() 
+	{
+	var valore_doppio = true
+	var new_val = 0
+	var i = 0
+	var n = 0
+	var k = 0
+	perm[0] = Math.floor((Math.random() * lato) + 1)
+
+
+	for (k=1; k<= lato-1; k++)	
+
+		{
+		   valore_doppio = true
+		   while (valore_doppio) {
+		   valore_doppio = false
+		   new_val = Math.floor((Math.random() * lato) + 1)
+	    	   for (i=0; i< k; i++)
+		   	if (perm[i] == new_val) valore_doppio = true		
+		   }
+		   perm[k] = new_val
+		}
+	
+	//alert(perm)
+}
+
+
+
+function  load_board() {
+	//alert("random");
+	//;
+	for (riga=1; riga<=lato; riga++)
+	   {
+	   permutation()
+ 	   for (colonna=1; colonna<=lato; colonna++)
+		{
+		document.getElementById(id_matrice(riga-1,colonna-1))
+                        .innerHTML = perm[colonna-1]
+		board[riga-1][colonna-1] = perm[colonna-1]
+		}
+	   }
+	//alert(board)	    
+}
+
+
+
+
+</script>
+
+  </head>
+
+
+  <body onload="load_board()">
+
+<table id="tab_board">
+
+  <tr>
+    <td id="1" onclick="clicca(this)"> </td>
+    <td id="2" onclick="clicca(this)"> </td>
+    <td id="3" onclick="clicca(this)"> </td>
+    <td id="4" onclick="clicca(this)"> </td>
+    <td id="5" onclick="clicca(this)"> </td>
+    <td id="6" onclick="clicca(this)"> </td>
+    <td id="7" onclick="clicca(this)"> </td>
+    <td id="8" onclick="clicca(this)"> </td>
+  </tr>
+
+  <tr>
+    <td id="9" onclick="clicca(this)"> </td>
+    <td id="10" onclick="clicca(this)"> </td>
+    <td id="11" onclick="clicca(this)"> </td>
+    <td id="12" onclick="clicca(this)"> </td>
+    <td id="13" onclick="clicca(this)"> </td>
+    <td id="14" onclick="clicca(this)"> </td>
+    <td id="15" onclick="clicca(this)"> </td>
+    <td id="16" onclick="clicca(this)"> </td>
+  </tr>
+
+  <tr>
+    <td id="17" onclick="clicca(this)"> </td>
+    <td id="18" onclick="clicca(this)"> </td>
+    <td id="19" onclick="clicca(this)"> </td>
+    <td id="20" onclick="clicca(this)"> </td>
+    <td id="21" onclick="clicca(this)"> </td>
+    <td id="22" onclick="clicca(this)"> </td>
+    <td id="23" onclick="clicca(this)"> </td>
+    <td id="24" onclick="clicca(this)"> </td>
+  </tr>
+
+  <tr>
+    <td id="25" onclick="clicca(this)"> </td>
+    <td id="26" onclick="clicca(this)"> </td>
+    <td id="27" onclick="clicca(this)"> </td>
+    <td id="28" onclick="clicca(this)"> </td>
+    <td id="29" onclick="clicca(this)"> </td>
+    <td id="30" onclick="clicca(this)"> </td>
+    <td id="31" onclick="clicca(this)"> </td>
+    <td id="32" onclick="clicca(this)"> </td>
+  </tr>
+  
+  <tr>
+    <td id="33" onclick="clicca(this)"> </td>
+    <td id="34" onclick="clicca(this)"> </td>
+    <td id="35" onclick="clicca(this)"> </td>
+    <td id="36" onclick="clicca(this)"> </td>
+    <td id="37" onclick="clicca(this)"> </td>
+    <td id="38" onclick="clicca(this)"> </td>
+    <td id="39" onclick="clicca(this)"> </td>
+    <td id="40" onclick="clicca(this)"> </td>
+  </tr>
+
+  <tr>
+    <td id="41" onclick="clicca(this)"> </td>
+    <td id="42" onclick="clicca(this)"> </td>
+    <td id="43" onclick="clicca(this)"> </td>
+    <td id="44" onclick="clicca(this)"> </td>
+    <td id="45" onclick="clicca(this)"> </td>
+    <td id="46" onclick="clicca(this)"> </td>
+    <td id="47" onclick="clicca(this)"> </td>
+    <td id="48" onclick="clicca(this)"> </td>
+  </tr>
+
+<tr>
+    <td id="49" onclick="clicca(this)"> </td>
+    <td id="50" onclick="clicca(this)"> </td>
+    <td id="51" onclick="clicca(this)"> </td>
+    <td id="52" onclick="clicca(this)"> </td>
+    <td id="53" onclick="clicca(this)"> </td>
+    <td id="54" onclick="clicca(this)"> </td>
+    <td id="55" onclick="clicca(this)"> </td>
+    <td id="56" onclick="clicca(this)"> </td>
+  </tr>
+
+<tr>
+    <td id="57" onclick="clicca(this)"> </td>
+    <td id="58" onclick="clicca(this)"> </td>
+    <td id="59" onclick="clicca(this)"> </td>
+    <td id="60" onclick="clicca(this)"> </td>
+    <td id="61" onclick="clicca(this)"> </td>
+    <td id="62" onclick="clicca(this)"> </td>
+    <td id="63" onclick="clicca(this)"> </td>
+    <td id="64" onclick="clicca(this)"> </td>
+</tr>
+
+</table>
+
+</p>
+</p>
+
+<table id="tab_punti">
+
+<tr>
+    <td>  </td>
+    <td id="punti1"> </td>
+    <td>  </td>
+    <td id="punti2"> </td>
+    <td id="m1" >  </td>
+    <td id="mosse1"> </td>
+    <td id="m2"> </td>
+    <td id="mosse2"> </td>
+</tr>
+
+</table>
+
+  </body>
+
+</html>
